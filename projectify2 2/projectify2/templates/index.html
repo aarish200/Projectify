@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projectify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: auto;
+        }
+
+        .intro-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            text-align: center;
+            transition: opacity 0.6s ease-in-out;
+            position: relative;
+        }
+
+        .intro-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .intro-content {
+            max-width: 600px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .intro-content h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .intro-content p {
+            font-size: 1.2em;
+            color: #dcdde1;
+            margin-bottom: 40px;
+        }
+
+        .intro-content button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+        }
+
+        .intro-content button:hover {
+            background-color: #2980b9;
+        }
+
+        .chat-container {
+            max-width: 800px;
+            width: 100%;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s ease;
+            margin: 20px; /* Ensure space around container for scrolling */
+        }
+
+        .chat-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .header img {
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 2em;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .todo-button, .problem-button {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .todo-button button, .problem-button button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+        }
+
+        .todo-button button:hover, .problem-button button:hover {
+            background-color: #2980b9;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1em;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #3498db;
+            color: #fff;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            margin-right: auto;
+        }
+
+        #user-input {
+            width: calc(100% - 140px);
+            padding: 15px 20px;
+            font-size: 1em;
+            border-radius: 50px;
+            border: 1px solid #bdc3c7;
+            outline: none;
+        }
+
+        .send-btn {
+            padding: 15px 30px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Buttons on the top left */
+        .top-buttons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-buttons button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .top-buttons button:hover {
+            background-color: #2980b9;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Buttons -->
+    <div class="top-buttons">
+        <button onclick="goToTodoPage()">To-Do Page</button>
+        <button onclick="goToProblemPage()">Problem Solver</button>
+    </div>
+
+    <!-- Intro Page -->
+    <div class="intro-container" id="intro-page">
+        <div class="intro-content">
+            <h1>Welcome to Projectify</h1>
+            <p>Your AI companion for planning and developing projects.</p>
+            <button onclick="visitChatbot()">Visit Chatbot</button>
+        </div>
+    </div>
+
+    <!-- Chatbot Page -->
+    <div class="chat-container" id="chat-page">
+        <div class="header">
+            <img src="/source/Screenshot 2024-09-01 at 21.16.59.png" alt="Projectify Logo">
+            <h2>Projectify</h2>
+        </div>
+        <div id="chat-box" class="flex-column">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div class="input-group" style="display: flex; align-items: center;">
+            <input type="text" id="user-input" placeholder="Type your message here..." />
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function visitChatbot() {
+            document.getElementById('intro-page').classList.add('hidden');
+            const chatPage = document.getElementById('chat-page');
+            setTimeout(() => {
+                chatPage.classList.add('show');
+            }, 600); // Delay to allow the intro page to hide smoothly
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            const chatBox = document.getElementById('chat-box');
+
+            if (userInput.trim() === "") return;
+
+            // Add user message to chat
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user-message');
+            userMessage.innerText = userInput;
+            chatBox.appendChild(userMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Show "I'm thinking..." message
+            const thinkingMessage = document.createElement('div');
+            thinkingMessage.classList.add('message', 'bot-message');
+            thinkingMessage.innerText = "I'm thinking...";
+            chatBox.appendChild(thinkingMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Send message to Flask backend
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userInput })
+                });
+
+                const data = await response.json();
+
+                // Remove the "I'm thinking..." message
+                chatBox.removeChild(thinkingMessage);
+
+                // Add bot response to chat
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('message', 'bot-message');
+                botMessage.innerHTML = "<strong>" + data.response + "</strong>";
+                chatBox.appendChild(botMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                console.error('Error:', error);
+                chatBox.removeChild(thinkingMessage);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('message', 'bot-message');
+                errorMessage.innerText = "Oops! Something went wrong.";
+                chatBox.appendChild(errorMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            // Clear input field
+            document.getElementById('user-input').value = "";
+        }
+
+        function goToTodoPage() {
+            window.location.href = "todo_page_url";
+        }
+
+        function goToProblemPage() {
+            window.location.href = "problem_page_url";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        /* Basic styles for layout and task items */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('background-image.jpg'); /* Replace with your actual image path */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white; /* Adjusted text color for better visibility */
+        }
+        .navbar {
+            background-color: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .navbar button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            color: #2c3e50; /* Text color for better readability against the light background */
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            margin: 0 0 10px;
+            font-size: 1.5em;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        .task {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            position: relative;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task .task-text {
+            font-size: 16px;
+            color: #333;
+        }
+        .task-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .task button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .task button:hover {
+            background-color: #2980b9;
+        }
+        .add-task, .add-ai-task {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .add-task:hover, .add-ai-task:hover {
+            background-color: #27ae60;
+        }
+        #taskInput {
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>My To-Do List</h1>
+        <button onclick="goToHomePage()">Go to home page</button>
+    </div>
+
+    <div class="container">
+        <input type="text" id="taskInput" placeholder="Enter a new task...">
+        <button class="add-task" onclick="addTask()">Add Task</button>
+        <button class="add-ai-task" onclick="getAITasks()">Add AI-Generated Tasks</button>
+
+        <div class="section" id="pendingSection">
+            <h2>Pending Tasks</h2>
+        </div>
+
+        <div class="section" id="workingSection">
+            <h2>Working Tasks</h2>
+        </div>
+
+        <div class="section" id="doneSection">
+            <h2>Done Tasks</h2>
+        </div>
+    </div>
+
+    <script>
+        function goToHomePage() {
+            window.location.href = "/";  // Replace "index.html" with the correct path to your home page
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById("taskInput");
+            const taskText = taskInput.value.trim();
+            if (taskText !== "") {
+                const taskElement = createTaskElement(taskText);
+                document.getElementById("pendingSection").appendChild(taskElement);
+                taskInput.value = "";
+            }
+        }
+
+        function createTaskElement(taskText) {
+            const taskElement = document.createElement("div");
+            taskElement.classList.add("task");
+
+            const taskTextElement = document.createElement("span");
+            taskTextElement.classList.add("task-text");
+            taskTextElement.textContent = taskText;
+
+            const taskButtons = document.createElement("div");
+            taskButtons.classList.add("task-buttons");
+
+            const workingButton = document.createElement("button");
+            workingButton.textContent = "Move to Working";
+            workingButton.onclick = function () {
+                moveToWorking(taskElement);
+            };
+
+            const doneButton = document.createElement("button");
+            doneButton.textContent = "Move to Done";
+            doneButton.onclick = function () {
+                moveToDone(taskElement);
+            };
+
+            taskButtons.appendChild(workingButton);
+            taskButtons.appendChild(doneButton);
+            taskElement.appendChild(taskTextElement);
+            taskElement.appendChild(taskButtons);
+
+            return taskElement;
+        }
+
+        function moveToWorking(taskElement) {
+            document.getElementById("workingSection").appendChild(taskElement);
+        }
+
+        function moveToDone(taskElement) {
+            document.getElementById("doneSection").appendChild(taskElement);
+        }
+
+        function getAITasks() {
+            fetch('/generate_todo_list', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: 'unique_user_id'  // Replace with actual user ID if needed
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tasks = data.tasks;
+                tasks.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    document.getElementById("pendingSection").appendChild(taskElement);
+                });
+            })
+            .catch(error => console.error('Error fetching AI tasks:', error));
+        }
+    </script>
+
+</body>
+</html>
