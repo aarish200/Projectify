@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-Api_key = ''
+Api_key = os.getenv('Api_key')
 # Global messages
 WELCOME_MESSAGE = "Welcome! Please provide the SDG Goal:"
 BUDGET_MESSAGE = "Could you please share the budget for your project? Kindly specify the currency."
